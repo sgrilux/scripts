@@ -5,14 +5,14 @@
 
 [[ $# != 1 ]] && echo "Usage: $0 <bucket_name>" && exit 1
 
-N_FILES=10 # Number of files to generate for each folder
-BYTES=200000a # Bytes for each file
+N_FILES=1000
+BYTES=200000
 
 S3_DEST_BUCKET=$1
 S3_KEYS="test test1 test2 test3 test4 test5 test6 test7 test8 test9"
 
 # Check first if the bucket exists
-aws s3api head-bucket --bucket ${S3_DEST_BUCKET} 2>/dev/null || echo "Bucket ${S3_DEST_BUCKET} does not exist!" && exit 15
+aws s3api head-bucket --bucket ${S3_DEST_BUCKET} || echo "Bucket ${S3_DEST_BUCKET} does not exist!" || exit 15
 
 for d in ${S3_KEYS}; do
     mkdir -p ${d}
@@ -21,4 +21,6 @@ for d in ${S3_KEYS}; do
         cat /dev/urandom | head -c 200000 > ${d}/${filename}
     done
     aws s3 cp ./test s3://${S3_DEST_BUCKET}/${d} --recursive --quiet
+
+    rm -fr ${d}
 done
